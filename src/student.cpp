@@ -195,222 +195,77 @@ using namespace std;
 // SOAL 1 — push                                                        25 poin
 //          Langkah 1 pada cerita: perubahan dicatat ke puncak tumpukan
 // =============================================================================
-// Yang diminta:
-//   Letakkan sebuah nilai baru di posisi PALING ATAS tumpukan. Seluruh nilai
-//   yang sudah ada tetap tersimpan dengan urutan yang sama persis, hanya saja
-//   sekarang mereka semua berada di bawah nilai baru itu.
-//
-// Parameternya:
-//   `s`         stack milik pemanggil. Bertanda `&`, sehingga perubahan pada
-//               `s.top` ikut terasa oleh pemanggil
-//   `nilai`     nilai yang mau dimasukkan
-//   kembalian   `true` bila nilai baru berhasil masuk
-//
-// Contoh:
-//   Sebelum : Top -> 20 -> 10
-//   Operasi : push(s, 30)
-//   Sesudah : Top -> 30 -> 20 -> 10                (kembalian true)
-//
-//   Tumpukan yang tadinya kosong:
-//   Sebelum : (kosong)
-//   Operasi : push(s, 10)
-//   Sesudah : Top -> 10                            (kembalian true)
-//
-// Yang perlu diingat:
-//   - Sesudah pemanggilan, `s.top` harus menunjuk node yang baru.
-//
-//   - Node baru harus tersambung ke isi lama: `next` miliknya menunjuk elemen
-//     yang tadinya berada di puncak. Lupa menyambung ini membuat seluruh isi
-//     lama hilang dari tumpukan sekaligus bocor di memori.
-//
-//   - Pada tumpukan yang tadinya KOSONG, `next` milik node baru bernilai
-//     `nullptr`. Perhatikan bahwa keadaan ini sebenarnya tidak perlu ditangani
-//     secara khusus — kalau Anda menyambungkannya ke `s.top` yang memang sedang
-//     bernilai `nullptr`, hasilnya sudah benar dengan sendirinya.
-//
-//   - Nilai-nilai lama tidak boleh hilang dan urutannya tidak boleh berubah.
-//
-//   - TIDAK pernah ada penolakan karena penuh. Stack berbasis linked list tidak
-//     punya kapasitas tetap, jadi kembaliannya selalu `true` selama node
-//     barunya berhasil dibuat. Ini beda pokok dengan stack berbasis array.
-//
-//   - Setiap pemanggilan menyediakan TEPAT SATU node baru.
-// =============================================================================
-
 bool push(Stack& s, int nilai) {
-    return false;
+    Node* newNode = new Node;
+    newNode->data = nilai;
+    newNode->next = s.top;    
+    s.top = newNode;    
+    return true;
 }
 
 // =============================================================================
 // SOAL 2 — pop                                                         30 poin
 //          Langkah 3 pada cerita: Ctrl+Z membatalkan yang paling terakhir
 // =============================================================================
-// Yang diminta:
-//   Keluarkan elemen PALING ATAS dari tumpukan, beri tahu pemanggil nilainya,
-//   lalu buang node-nya dari memori.
-//
-//   Perhatikan bahwa fungsi ini harus melaporkan DUA hal sekaligus: berhasil
-//   atau tidak, dan nilai apa yang keluar. Karena satu fungsi hanya bisa
-//   mengembalikan satu nilai, yang kedua disampaikan lewat parameter `nilai`
-//   yang bertanda `&` — pemanggil menyediakan variabelnya, dan fungsi ini
-//   mengisinya.
-//
-//   Bandingkan dengan `peek` yang SUDAH DISEDIAKAN di bagian bawah file ini.
-//   Keduanya sama-sama mengisi `nilai` dan sama-sama mengembalikan `bool`.
-//   Bedanya cuma satu: `peek` hanya melihat, sedangkan `pop` benar-benar
-//   mengeluarkan dan membuang node-nya.
-//
-// Parameternya:
-//   `s`         stack milik pemanggil. Bertanda `&`
-//   `nilai`     tempat pemanggil menerima nilai yang keluar. Bertanda `&`
-//   kembalian   `true` bila ada elemen yang benar-benar dikeluarkan, `false`
-//               bila tumpukannya sedang kosong
-//
-// Contoh:
-//   Sebelum : Top -> 30 -> 20 -> 10
-//   Operasi : int n; pop(s, n);
-//   Sesudah : Top -> 20 -> 10, n bernilai 30       (kembalian true)
-//
-//   Tumpukan kosong (underflow):
-//   Sebelum : (kosong)
-//   Operasi : int n = -999; pop(s, n);
-//   Sesudah : (kosong), n TETAP bernilai -999      (kembalian false)
-//
-// Yang perlu diingat:
-//   - Yang keluar selalu elemen PALING ATAS, yaitu yang paling terakhir masuk
-//     di antara yang masih tersimpan.
-//
-//   - `nilai` harus sudah diisi SEBELUM node-nya di-`delete`. Node yang sudah
-//     dilepas tidak boleh dibaca lagi — membacanya sesudah `delete` adalah
-//     kesalahan yang hasilnya tidak dapat diramalkan.
-//
-//   - Sesudah pemanggilan yang berhasil, `s.top` berpindah ke elemen di
-//     bawahnya, dan seluruh sisanya tetap tersimpan dengan urutan yang sama.
-//
-//   - Node yang keluar harus dibuang dengan `delete`, TEPAT SATU node per
-//     pemanggilan yang berhasil.
-//
-//   - UNDERFLOW: bila tumpukannya sedang kosong, kembaliannya `false`, dan
-//     `nilai` TIDAK BOLEH DISENTUH SAMA SEKALI. Ini ikut diuji: checker mengisi
-//     variabel penerima dengan sebuah penanda lebih dulu, lalu memastikan
-//     penanda itu masih utuh sesudah pemanggilan yang gagal.
-//
-//   - Mengeluarkan elemen terakhir membuat tumpukan menjadi kosong, dan
-//     tumpukan itu harus tetap bisa dipakai lagi sesudahnya.
-// =============================================================================
-
 bool pop(Stack& s, int& nilai) {
-    return false;
+    if (s.top == nullptr) {
+        return false;
+    }
+    
+    Node* nodeHapus = s.top;
+    nilai = nodeHapus->data; 
+    s.top = s.top->next;
+    delete nodeHapus;  
+    return true;
 }
 
 // =============================================================================
 // SOAL 3 — clear                                                       20 poin
 //          Langkah 4 pada cerita: Ctrl+S membuang seluruh riwayat undo
 // =============================================================================
-// Yang diminta:
-//   Buang seluruh isi tumpukan sekaligus, sampai benar-benar kosong.
-//
-//   Perhatikan baik-baik kata "dibuang". Memutus sambungannya saja tidak cukup.
-//   Anda memang bisa langsung membuat `s.top` bernilai `nullptr`, dan sekilas
-//   tumpukannya akan terlihat kosong — tetapi seluruh node-nya masih menumpuk
-//   di memori, dan sekarang tidak ada satu pun yang bisa mencapainya lagi
-//   karena alamat puncaknya sudah hilang. Keadaan seperti itu disebut kebocoran
-//   memori, dan itu ikut dinilai.
-//
-// Parameternya:
-//   `s`         stack milik pemanggil. Bertanda `&`
-//   kembalian   tidak ada (fungsi bertipe `void`)
-//
-// Contoh:
-//   Sebelum : Top -> 50 -> 40 -> 30 -> 20 -> 10
-//   Operasi : clear(s)
-//   Sesudah : (kosong) — `s.top` bernilai nullptr, dan kelima node sudah
-//             dibuang dari memori
-//
-// Yang perlu diingat:
-//   - Sesudah selesai, `s.top` bernilai `nullptr`.
-//
-//   - SELURUH node harus dibuang dengan `delete`, bukan hanya yang paling atas.
-//     Banyaknya node yang dibuang ikut dihitung checker secara TEPAT.
-//
-//   - Hati-hati: alamat node berikutnya harus sudah disimpan SEBELUM sebuah
-//     node di-`delete`. Node yang sudah dilepas tidak boleh dibaca lagi,
-//     termasuk untuk mencari node selanjutnya.
-//
-//   - Memanggilnya pada tumpukan yang SUDAH kosong adalah sah: tidak terjadi
-//     apa-apa, dan program tidak boleh berhenti tidak wajar.
-//
-//   - Memanggilnya dua kali berturut-turut juga harus aman.
-//
-//   - Sesudah dikosongkan, tumpukan harus tetap bisa DIPAKAI LAGI seperti biasa.
-//     Dokumen yang baru disimpan tetap bisa diketik lagi sesudahnya.
-// =============================================================================
-
 void clear(Stack& s) {
+    while (s.top != nullptr) {
+        Node* nodeHapus = s.top;
+        s.top = s.top->next;
+        delete nodeHapus;
+    }
 }
 
 // =============================================================================
 // SOAL 4 — kurungSeimbang                                              25 poin
 //          Langkah 5 pada cerita: pemeriksa kurung pada kode
 // =============================================================================
-// Yang diminta:
-//   Tentukan apakah tanda kurung di dalam sebuah teks sudah berpasangan dengan
-//   seimbang. Ada tiga jenis yang diperiksa: `(` dengan `)`, `[` dengan `]`,
-//   dan `{` dengan `}`.
-//
-//   Seimbang berarti tiga hal sekaligus:
-//     - setiap tanda buka punya penutup yang SEJENIS;
-//     - setiap tanda tutup punya pembuka yang SEJENIS; dan
-//     - pasangan-pasangannya tidak saling BERSILANGAN.
-//
-//   Yang harus Anda putuskan sendiri: bagaimana mengingat tanda buka mana yang
-//   masih menunggu pasangan. Petunjuknya sudah ada di bagian cerita — ketika
-//   bertemu sebuah tanda tutup, yang harus dipasangkan dengannya selalu tanda
-//   buka yang PALING TERAKHIR dibuka dan belum tertutup.
-//
-// Parameternya:
-//   `ekspresi`  teks yang mau diperiksa. Boleh sepanjang apa pun, boleh juga
-//               kosong
-//   kembalian   `true` bila seimbang, `false` bila tidak
-//
-// Contoh:
-//   "( a + b ) * ( c - d )"   -> true
-//   "{[()]}"                  -> true    tiga jenis, bersarang rapi
-//   ""                        -> true    tidak ada kurung sama sekali
-//   "halo dunia"              -> true    karakter lain diabaikan
-//   "( a + b ) * ( c - d"     -> false   ada buka tanpa penutup
-//   "( a + [ b ) ]"           -> false   pasangannya bersilangan
-//   ")("                      -> false   penutup muncul lebih dulu
-//   "(]"                      -> false   penutupnya tidak sejenis
-//
-// Yang perlu diingat:
-//   - Karakter selain keenam tanda kurung itu DIABAIKAN. Huruf, angka, spasi,
-//     dan tanda baca lain tidak mempengaruhi hasil.
-//
-//   - Teks kosong bernilai seimbang, begitu juga teks yang sama sekali tidak
-//     memuat tanda kurung.
-//
-//   - Tanda tutup yang muncul saat tidak ada satu pun tanda buka yang menunggu
-//     berarti TIDAK seimbang. Contohnya `)(` — walaupun jumlah buka dan
-//     tutupnya sama-sama satu.
-//
-//   - Menghitung jumlah saja TIDAK CUKUP. Perhatikan `( a + [ b ) ]`: jumlah
-//     bukanya dua dan tutupnya dua, tetapi pasangannya bersilangan sehingga
-//     tetap tidak seimbang. Yang menentukan adalah URUTANNYA.
-//
-//   - Di akhir pemeriksaan, tidak boleh ada tanda buka yang masih menunggu
-//     pasangan.
-//
-//   - Tidak ada batas banyaknya tanda kurung yang boleh bersarang.
-//
-//   - Anda boleh memakai `push` dan `pop` buatan Anda sendiri, atau cara lain
-//     yang menghasilkan perilaku sama. Yang dinilai hanya hasilnya. Bila Anda
-//     memakai stack sendiri, jangan lupa membereskan node-nya sebelum fungsi
-//     ini selesai.
-// =============================================================================
-
 bool kurungSeimbang(const string& ekspresi) {
-    return false;
+    Stack s;
+    s.top = nullptr;
+    
+    for (char c : ekspresi) {
+        if (c == '(' || c == '{' || c == '[') {
+            push(s, c);
+        }
+        else if (c == ')' || c == '}' || c == ']') {
+            int nilaiPuncak;
+            
+            if (!pop(s, nilaiPuncak)) {
+                clear(s);
+                return false;
+            }
+            
+            char kurungBuka = (char)nilaiPuncak;
+            
+            if ((c == ')' && kurungBuka != '(') ||
+                (c == '}' && kurungBuka != '{') ||
+                (c == ']' && kurungBuka != '[')) {
+                clear(s);
+                return false;
+            }
+        }
+    }
+    
+    bool hasil = (s.top == nullptr);
+    
+    clear(s);
+    return hasil;
 }
 
 // =============================================================================
